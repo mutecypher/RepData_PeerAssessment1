@@ -1,7 +1,7 @@
 ---
 title: "PA1"
 author: "mutecypher"
-date: "July 3, 2016"
+date: "July 8, 2016"
 output: html_document
 ---
 This is the data analysis portion of the project 2 for Reproducible Results
@@ -51,7 +51,9 @@ library(lubridate)
 intervals <- aggregate(noNAdata$steps ~ noNAdata$interval, noNAdata ,FUN = mean)
 ## make the plot using the row names as the x value, each 5 minute interval is numbered by row
 names(intervals) <- c("interval", "steps")
+png(filenam = "intervals.png", width = 480, height = 480)
 plot(rownames(intervals), intervals$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over All Days")
+dev.off()
 topstep <- intervals[which.max(intervals$steps),]
 names(topstep)
 topstep$interval <- parse_date_time(topstep$interval, "%R")
@@ -92,7 +94,9 @@ Now make a nice histogram of the total steps take per day
 
 ```{r histyimputed, fig.height = 5}
 par(mar = c(5,4,1,1))
+png(filenam = "imputedsteps.png", width = 480, height = 480)
 hist(imputedsteps$steps,xlab="Daily sum of steps", ylab =  "Days", main = "Sum of Steps taken per day with interval means substituted for NAs")
+dev.off()
 ```
 Per the directions, I will use the data with the filled in values for NA - the mean for each interval. 
 
@@ -114,5 +118,7 @@ meanweekend <- aggregate(weekendonly$steps ~ weekendonly$interval, weekendonly, 
 names(meanweekday) <- c("interval", "steps")
 names(meanweekend) <- c("interval", "steps")
 par(mfrow = c(2,1))
+png(filenam = "weekdays.png", width = 480, height = 480)
 plot(meanweekday$interval, meanweekday$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over Weekdays")
 plot(meanweekend$interval, meanweekend$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over Weekend")
+dev.off()
