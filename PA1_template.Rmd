@@ -1,25 +1,118 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "PA1"
+author: "mutecypher"
+date: "July 3, 2016"
+output: html_document
 ---
+This is the data analysis portion of the project 2 for Reproducible Results
+```{r, knitr::opts_chunk$set(fig.width=12, fig.height=6, fig.path='figure/', warning=FALSE, message=FALSE)}
+##create a directory if one does not exist
+##install.packages("knitr", "rmarkdown)
+##library(knitr)##
+install.packages("ggplot2", repos="http://cran.rstudio.com/")
+library(ggplot2)
+fileUrl <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+download.file(fileUrl, destfile = "data.zip", method = "curl")
+data <- unzip("data.zip")
+unlink(fileUrl)
+data <- read.csv("./activity.csv")
+ThisRanAt <- date()
+```
+
+The data was downloaded and read at `r ThisRanAt`.
+
+Create a version of the data without NA's and aggregate the step data by date
+```{r processit}
+## make a version of the data without the NA's then get mean and median
+data$date <- as.Date(data$date, "%Y-%m-%d")
+noNAdata <- data[complete.cases(data),]
+names(noNAdata) <- c("steps", "date", "interval")
+## aggregate the data into a table with the steps summed by day
+aggysteps <- aggregate(noNAdata$steps ~ noNAdata$date, noNAdata ,FUN = sum)
+names(aggysteps) <- c("date", "steps")
+write.csv(aggysteps, file = "aggysteps.csv")
+```
+
+Now make a nice histogram of the total steps taken per day
+
+```{r histymeanmed, fig.height = 5}
+png(filename = "firsthisty.png", width = 480, height = 480)
+hist(aggysteps$steps)
+dev.off()
+meansteps <- mean(aggysteps$steps)
+mediansteps <- median(aggysteps$steps)
+```
+
+The mean number of steps take per day is `r meansteps` and the median taken per day is `r mediansteps`.
+
+```{r intervals}
+install.packages("lubridate", repos="http://cran.rstudio.com/")
+library(lubridate)
+intervals <- aggregate(noNAdata$steps ~ noNAdata$interval, noNAdata ,FUN = mean)
+## make the plot using the row names as the x value, each 5 minute interval is numbered by row
+names(intervals) <- c("interval", "steps")
+plot(rownames(intervals), intervals$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over All Days")
+topstep <- intervals[which.max(intervals$steps),]
+names(topstep)
+topstep$interval <- parse_date_time(topstep$interval, "%R")
+toptime <- paste(hour(topstep$interval), minute(topstep$interval), sep = ":")
+```
+
+The most steppy time is `r toptime`.
+```{r newdata}
+countall <- dim(data)
+withoutna <- dim(noNAdata)
+difference <- countall[1] - withoutna[1]
+```
+
+There were `r difference` NAs in the data.
+```{r insavgs}
+imputeddata <- data
+names(imputeddata) <- c("steps", "date", "interval")
+## replace the NAs with the average for the interval
+repintervals <- intervals
+## create a vector the same dimension as the data for substitution
+repintervals <- repintervals[rep(rownames(repintervals),61),]
+imputeddata$steps <- replace(imputeddata$steps, which(is.na(imputeddata$steps)),repintervals[which(is.na(imputeddata$steps)),2])
+## turn the steps column to numeric data,some were characters
+imputeddata$steps <- as.numeric(as.character(imputeddata$steps))
+## now sum the data for each day
+imputedsteps <- aggregate(imputeddata$steps ~ imputeddata$date, imputeddata ,FUN = sum)
+names(imputedsteps) <- c("date", "steps")
+#now find the mean for steps per day
+imputedmean <- mean(imputedsteps$steps)
+imputedmed <- median(imputedsteps$steps)
+```
+The mean number of steps when the interval means were substituted for NA is: `r imputedmean`.
+
+The meadian number of steps when the interval means were substituted for NA is: `r imputedmed`.
 
 
-## Loading and preprocessing the data
+Now make a nice histogram of the total steps take per day
 
+```{r histyimputed, fig.height = 5}
+par(mar = c(5,4,1,1))
+hist(imputedsteps$steps,xlab="Daily sum of steps", ylab =  "Days", main = "Sum of Steps taken per day with interval means substituted for NAs")
+```
+Per the directions, I will use the data with the filled in values for NA - the mean for each interval. 
 
+```{r weekdays versus weekends}
+install.packages("timeDate", repos = "http://cran.rstudio.com/")
+library(timeDate)
+weekdazedata <- imputeddata
+##now add days of the week as a factor
+weekdazedata$wkday <- isWeekday(weekdazedata$date)
+weekdazedata$wknday <- isWeekend(weekdazedata$date)
+```
+Make the plot after aggregating the data
 
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+```{r getting weekend and weekdays}
+weekdayonly <- subset(weekdazedata, weekdazedata$wkday == TRUE)
+weekendonly <- subset(weekdazedata, weekdazedata$wknday == TRUE)
+meanweekday <- aggregate(weekdayonly$steps ~ weekdayonly$interval, weekdayonly, FUN = mean)
+meanweekend <- aggregate(weekendonly$steps ~ weekendonly$interval, weekendonly, FUN = mean)
+names(meanweekday) <- c("interval", "steps")
+names(meanweekend) <- c("interval", "steps")
+par(mfrow = c(2,1))
+plot(meanweekday$interval, meanweekday$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over Weekdays")
+plot(meanweekend$interval, meanweekend$steps, type = "l", xlab = "5 minute intervals(not times)", ylab = "average steps", main = "Average Number of Steps per Interval Over Weekend")
