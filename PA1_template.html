@@ -129,7 +129,7 @@ $(document).ready(function () {
 install.packages(&quot;ggplot2&quot;, repos=&quot;http://cran.rstudio.com/&quot;)</code></pre>
 <pre><code>## 
 ## The downloaded binary packages are in
-##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpXaYCtA/downloaded_packages</code></pre>
+##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpMJ6rFL/downloaded_packages</code></pre>
 <pre class="r"><code>library(ggplot2)
 fileUrl &lt;- &quot;http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;
 download.file(fileUrl, destfile = &quot;data.zip&quot;, method = &quot;curl&quot;)
@@ -137,7 +137,7 @@ data &lt;- unzip(&quot;data.zip&quot;)
 unlink(fileUrl)
 data &lt;- read.csv(&quot;./activity.csv&quot;)
 ThisRanAt &lt;- date()</code></pre>
-<p>The data was downloaded and read at Fri Jul 8 21:34:31 2016.</p>
+<p>The data was downloaded and read at Sun Jul 10 07:16:25 2016.</p>
 <p>Create a version of the data without NA’s and aggregate the step data by date</p>
 <pre class="r"><code>## make a version of the data without the NA's then get mean and median
 data$date &lt;- as.Date(data$date, &quot;%Y-%m-%d&quot;)
@@ -159,7 +159,7 @@ mediansteps &lt;- median(aggysteps$steps)</code></pre>
 <pre class="r"><code>install.packages(&quot;lubridate&quot;, repos=&quot;http://cran.rstudio.com/&quot;)</code></pre>
 <pre><code>## 
 ## The downloaded binary packages are in
-##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpXaYCtA/downloaded_packages</code></pre>
+##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpMJ6rFL/downloaded_packages</code></pre>
 <pre class="r"><code>library(lubridate)</code></pre>
 <pre><code>## 
 ## Attaching package: 'lubridate'</code></pre>
@@ -212,7 +212,7 @@ dev.off()</code></pre>
 <pre class="r"><code>install.packages(&quot;timeDate&quot;, repos = &quot;http://cran.rstudio.com/&quot;)</code></pre>
 <pre><code>## 
 ## The downloaded binary packages are in
-##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpXaYCtA/downloaded_packages</code></pre>
+##  /var/folders/nn/99dcrrb57gg4tzn73f8vh_r80000gn/T//RtmpMJ6rFL/downloaded_packages</code></pre>
 <pre class="r"><code>library(timeDate)
 weekdazedata &lt;- imputeddata
 ##now add days of the week as a factor
